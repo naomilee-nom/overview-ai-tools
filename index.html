@@ -1,0 +1,972 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI 工具使用情況分析報告 — 2026/05/27</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang TC', 'Microsoft JhengHei', sans-serif;
+    background: #f5f4f0;
+    color: #1a1a18;
+    line-height: 1.6;
+  }
+  .page { max-width: 960px; margin: 0 auto; padding: 40px 24px 80px; }
+
+  /* Header */
+  .report-header {
+    border-bottom: 2px solid #2c2c2a;
+    padding-bottom: 20px;
+    margin-bottom: 36px;
+  }
+  .report-header .tag {
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: #5f5e5a;
+    margin-bottom: 8px;
+  }
+  .report-header h1 {
+    font-size: 28px;
+    font-weight: 500;
+    color: #1a1a18;
+    margin-bottom: 6px;
+  }
+  .report-header .subtitle {
+    font-size: 14px;
+    color: #5f5e5a;
+  }
+
+  /* Metric grid */
+  .metric-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+    margin-bottom: 48px;
+  }
+  .metric-card {
+    background: #fff;
+    border: 0.5px solid #d3d1c7;
+    border-radius: 10px;
+    padding: 16px 18px;
+  }
+  .metric-card .num {
+    font-size: 26px;
+    font-weight: 500;
+    color: #534AB7;
+    line-height: 1.1;
+  }
+  .metric-card .label {
+    font-size: 12px;
+    color: #5f5e5a;
+    margin-top: 4px;
+  }
+  .metric-card .sub {
+    font-size: 11px;
+    color: #888780;
+    margin-top: 2px;
+  }
+
+  /* Section */
+  .section { margin-bottom: 52px; }
+  .section-header {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    margin-bottom: 20px;
+    padding-bottom: 10px;
+    border-bottom: 0.5px solid #d3d1c7;
+  }
+  .section-number {
+    font-size: 11px;
+    font-weight: 500;
+    color: #fff;
+    background: #534AB7;
+    border-radius: 4px;
+    padding: 2px 7px;
+    letter-spacing: 0.05em;
+  }
+  .section-title {
+    font-size: 16px;
+    font-weight: 500;
+    color: #1a1a18;
+  }
+  .section-desc {
+    font-size: 13px;
+    color: #5f5e5a;
+    margin-top: 6px;
+    margin-bottom: 20px;
+  }
+
+  /* Chart grid */
+  .chart-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .chart-card {
+    background: #fff;
+    border: 0.5px solid #d3d1c7;
+    border-radius: 12px;
+    padding: 18px 18px 14px;
+  }
+  .chart-card.full { grid-column: 1 / -1; }
+  .chart-card h3 {
+    font-size: 13px;
+    font-weight: 500;
+    color: #2c2c2a;
+    margin-bottom: 4px;
+  }
+  .chart-card .avg-line {
+    font-size: 12px;
+    color: #5f5e5a;
+    margin-bottom: 12px;
+  }
+  .avg-line span {
+    display: inline-block;
+    background: #faeeda;
+    color: #633806;
+    font-size: 11px;
+    font-weight: 500;
+    padding: 2px 8px;
+    border-radius: 4px;
+    margin-left: 6px;
+  }
+  .chart-wrap { position: relative; width: 100%; }
+
+  /* Legend */
+  .legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-bottom: 12px;
+  }
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 11px;
+    color: #5f5e5a;
+  }
+  .legend-dot {
+    width: 10px; height: 10px;
+    border-radius: 2px;
+    flex-shrink: 0;
+  }
+  .legend-dash {
+    width: 16px; height: 2px;
+    flex-shrink: 0;
+    border-radius: 0;
+  }
+
+  /* Insight box */
+  .insight {
+    background: #eeedfe;
+    border-left: 3px solid #534AB7;
+    border-radius: 0 8px 8px 0;
+    padding: 12px 16px;
+    margin-top: 16px;
+    font-size: 13px;
+    color: #3c3489;
+    line-height: 1.6;
+  }
+  .insight strong { font-weight: 500; }
+
+  /* Summary table */
+  .summary-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+    margin-top: 16px;
+    background: #fff;
+    border-radius: 10px;
+    overflow: hidden;
+    border: 0.5px solid #d3d1c7;
+  }
+  .summary-table th {
+    background: #f1efe8;
+    padding: 10px 14px;
+    text-align: left;
+    font-weight: 500;
+    font-size: 12px;
+    color: #444441;
+    border-bottom: 0.5px solid #d3d1c7;
+  }
+  .summary-table td {
+    padding: 9px 14px;
+    border-bottom: 0.5px solid #f1efe8;
+    color: #2c2c2a;
+  }
+  .summary-table tr:last-child td { border-bottom: none; }
+  .summary-table .badge {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 11px;
+    font-weight: 500;
+  }
+  .badge-purple { background: #eeedfe; color: #3c3489; }
+  .badge-teal   { background: #e1f5ee; color: #085041; }
+  .badge-amber  { background: #faeeda; color: #633806; }
+  .badge-gray   { background: #f1efe8; color: #444441; }
+
+  /* Cost comparison */
+  .compare-grid {
+    display: grid;
+    grid-template-columns: 1fr 56px 1fr;
+    gap: 0;
+    align-items: start;
+    margin-bottom: 20px;
+  }
+  .compare-card {
+    background: #fff;
+    border: 0.5px solid #d3d1c7;
+    border-radius: 12px;
+    padding: 20px;
+  }
+  .compare-card.danger { border-color: #f09595; background: #fcebeb; }
+  .compare-card.success { border-color: #5dcaa5; background: #e1f5ee; }
+  .compare-card .compare-label {
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    margin-bottom: 10px;
+  }
+  .compare-card.danger .compare-label { color: #a32d2d; }
+  .compare-card.success .compare-label { color: #085041; }
+  .compare-card h4 { font-size: 14px; font-weight: 500; margin-bottom: 14px; }
+  .compare-card.danger h4 { color: #791f1f; }
+  .compare-card.success h4 { color: #04342c; }
+  .cost-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    padding: 7px 0;
+    border-bottom: 0.5px solid rgba(0,0,0,0.07);
+    font-size: 13px;
+  }
+  .cost-row:last-of-type { border-bottom: none; }
+  .cost-row .cost-name { color: #5f5e5a; }
+  .cost-row .cost-val { font-weight: 500; font-size: 14px; }
+  .cost-total {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    padding: 10px 0 0;
+    margin-top: 8px;
+    border-top: 1.5px solid rgba(0,0,0,0.12);
+    font-size: 13px;
+    font-weight: 500;
+  }
+  .cost-total .total-val { font-size: 18px; font-weight: 500; }
+  .compare-card.danger .total-val { color: #a32d2d; }
+  .compare-card.success .total-val { color: #085041; }
+  .vs-divider {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding-top: 60px;
+    font-size: 13px;
+    font-weight: 500;
+    color: #888780;
+  }
+  .savings-banner {
+    background: #eeedfe;
+    border: 0.5px solid #afa9ec;
+    border-radius: 10px;
+    padding: 16px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+  }
+  .savings-banner .savings-text { font-size: 14px; color: #3c3489; }
+  .savings-banner .savings-num { font-size: 22px; font-weight: 500; color: #534AB7; }
+  .savings-banner .savings-sub { font-size: 11px; color: #7f77dd; }
+  .assumption-note {
+    font-size: 11px;
+    color: #888780;
+    margin-top: 4px;
+    margin-bottom: 16px;
+  }
+  .proposal-box {
+    background: #fff;
+    border: 0.5px solid #d3d1c7;
+    border-radius: 12px;
+    padding: 20px 22px;
+    margin-top: 20px;
+  }
+  .proposal-box h4 {
+    font-size: 14px;
+    font-weight: 500;
+    color: #1a1a18;
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .proposal-tag {
+    font-size: 10px;
+    background: #e1f5ee;
+    color: #085041;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-weight: 500;
+  }
+  .proposal-item {
+    display: flex;
+    gap: 12px;
+    padding: 10px 0;
+    border-bottom: 0.5px solid #f1efe8;
+    font-size: 13px;
+  }
+  .proposal-item:last-child { border-bottom: none; }
+  .proposal-item .pi-num {
+    font-size: 11px;
+    font-weight: 500;
+    color: #534AB7;
+    background: #eeedfe;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+  .proposal-item .pi-title { font-weight: 500; color: #1a1a18; margin-bottom: 2px; }
+  .proposal-item .pi-desc { color: #5f5e5a; line-height: 1.5; }
+  .argument-block {
+    border-left: 3px solid #d3d1c7;
+    padding: 2px 0 2px 16px;
+    margin: 10px 0;
+  }
+  .argument-block p {
+    font-size: 14px;
+    color: #2c2c2a;
+    line-height: 1.75;
+    margin-bottom: 10px;
+  }
+  .argument-block p:last-child { margin-bottom: 0; }
+  .argument-block strong { font-weight: 500; color: #1a1a18; }
+
+  /* Footer */
+  .report-footer {
+    margin-top: 60px;
+    padding-top: 20px;
+    border-top: 0.5px solid #d3d1c7;
+    font-size: 12px;
+    color: #888780;
+    display: flex;
+    justify-content: space-between;
+  }
+
+  @media print {
+    body { background: #fff; }
+    .page { padding: 20px; }
+    .chart-grid { break-inside: avoid; }
+    .section { break-inside: avoid; }
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <!-- Header -->
+  <div class="report-header">
+    <div class="tag">Internal Survey Report &nbsp;·&nbsp; 2026 / 05 / 27</div>
+    <h1>AI 工具使用情況分析報告</h1>
+    <div class="subtitle">受訪對象：RD &amp; QA 工程師共 33 人 &nbsp;·&nbsp; 調查工具：Gemini、GitHub Copilot、ChatGPT、Claude、Cursor</div>
+  </div>
+
+  <!-- Metric Cards -->
+  <div class="metric-grid">
+    <div class="metric-card">
+      <div class="num">28</div>
+      <div class="label">RD 人數</div>
+    </div>
+    <div class="metric-card">
+      <div class="num">5</div>
+      <div class="label">QA 人數</div>
+    </div>
+    <div class="metric-card">
+      <div class="num" style="color:#1D9E75">$46.1</div>
+      <div class="label">RD 平均月花費</div>
+      <div class="sub">最高 $160（王昭智）</div>
+    </div>
+    <div class="metric-card">
+      <div class="num" style="color:#1D9E75">$30.3</div>
+      <div class="label">QA 平均月花費</div>
+      <div class="sub">最高 $50（洪文政）</div>
+    </div>
+  </div>
+
+  <!-- Section 1 -->
+  <div class="section">
+    <div class="section-header">
+      <span class="section-number">01</span>
+      <span class="section-title">RD / QA 每月 AI 工具開銷</span>
+    </div>
+    <p class="section-desc">每位成員每月在 AI 工具上的自費金額（USD），橘色虛線為該群組平均值。</p>
+    <div class="chart-grid">
+      <!-- RD Spending -->
+      <div class="chart-card">
+        <h3>RD 每月開銷（28 人）</h3>
+        <div class="avg-line">平均 <span>avg $46.1</span></div>
+        <div class="legend">
+          <span class="legend-item"><span class="legend-dot" style="background:#534AB7"></span>個人花費</span>
+          <span class="legend-item"><span class="legend-dash" style="background:#BA7517"></span>平均線</span>
+        </div>
+        <div class="chart-wrap" style="height:260px">
+          <canvas id="rdSpend" role="img" aria-label="RD 28人每月AI工具花費折線圖"></canvas>
+        </div>
+      </div>
+      <!-- QA Spending -->
+      <div class="chart-card">
+        <h3>QA 每月開銷（5 人）</h3>
+        <div class="avg-line">平均 <span>avg $30.3</span></div>
+        <div class="legend">
+          <span class="legend-item"><span class="legend-dot" style="background:#1D9E75"></span>個人花費</span>
+          <span class="legend-item"><span class="legend-dash" style="background:#BA7517"></span>平均線</span>
+        </div>
+        <div class="chart-wrap" style="height:260px">
+          <canvas id="qaSpend" role="img" aria-label="QA 5人每月AI工具花費折線圖"></canvas>
+        </div>
+      </div>
+    </div>
+    <div class="insight">
+      <strong>觀察：</strong>RD 花費分布較廣（$20–$160），高花費者主要使用 Claude 高階方案或多工具組合。QA 人數較少，花費集中在 $20–$50，平均比 RD 低約 35%。
+    </div>
+  </div>
+
+  <!-- Section 2 -->
+  <div class="section">
+    <div class="section-header">
+      <span class="section-number">02</span>
+      <span class="section-title">每人使用 AI 工具數量</span>
+    </div>
+    <p class="section-desc">統計每人在 Gemini、GitHub Copilot、ChatGPT、Claude、Cursor 五項工具中實際使用（付費或免費版）的數量。</p>
+    <div class="chart-grid">
+      <!-- RD Tools -->
+      <div class="chart-card">
+        <h3>RD 使用工具數（28 人）</h3>
+        <div class="avg-line">平均 <span>avg 2.5 個</span></div>
+        <div class="legend">
+          <span class="legend-item"><span class="legend-dot" style="background:#185FA5"></span>使用工具數</span>
+          <span class="legend-item"><span class="legend-dash" style="background:#BA7517"></span>平均線</span>
+        </div>
+        <div class="chart-wrap" style="height:260px">
+          <canvas id="rdTools" role="img" aria-label="RD 28人使用AI工具數量折線圖"></canvas>
+        </div>
+      </div>
+      <!-- QA Tools -->
+      <div class="chart-card">
+        <h3>QA 使用工具數（5 人）</h3>
+        <div class="avg-line">平均 <span>avg 3.0 個</span></div>
+        <div class="legend">
+          <span class="legend-item"><span class="legend-dot" style="background:#3B6D11"></span>使用工具數</span>
+          <span class="legend-item"><span class="legend-dash" style="background:#BA7517"></span>平均線</span>
+        </div>
+        <div class="chart-wrap" style="height:260px">
+          <canvas id="qaTools" role="img" aria-label="QA 5人使用AI工具數量折線圖"></canvas>
+        </div>
+      </div>
+    </div>
+    <div class="insight">
+      <strong>觀察：</strong>QA 平均使用 3.0 個工具，略高於 RD 的 2.5 個。多工具使用者（4 個）在 RD 中有 8 人（29%），QA 中有 2 人（40%）。單工具使用者主要只用 ChatGPT 或 Gemini 其中一項。
+    </div>
+  </div>
+
+  <!-- Section 3 -->
+  <div class="section">
+    <div class="section-header">
+      <span class="section-number">03</span>
+      <span class="section-title">各 AI 工具版本使用者統計</span>
+    </div>
+    <p class="section-desc">全體 33 人各工具的使用版本分佈（付費標準型、付費高階型、個人免費版、無使用）。</p>
+    <div class="chart-grid">
+      <div class="chart-card full">
+        <div class="legend">
+          <span class="legend-item"><span class="legend-dot" style="background:#534AB7"></span>付費標準型（~$10–20/月）</span>
+          <span class="legend-item"><span class="legend-dot" style="background:#BA7517"></span>付費高階型（~$100–200/月）</span>
+          <span class="legend-item"><span class="legend-dot" style="background:#1D9E75"></span>個人免費版</span>
+          <span class="legend-item"><span class="legend-dot" style="background:#B4B2A9"></span>無使用</span>
+        </div>
+        <div class="chart-wrap" style="height:300px">
+          <canvas id="verChart" role="img" aria-label="各AI工具版本使用者統計群組條形圖"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <!-- Summary table -->
+    <table class="summary-table">
+      <thead>
+        <tr>
+          <th>工具</th>
+          <th>付費標準型</th>
+          <th>付費高階型</th>
+          <th>個人免費版</th>
+          <th>無使用</th>
+          <th>實際使用率</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>Gemini</strong></td>
+          <td><span class="badge badge-purple">25 人</span></td>
+          <td>—</td>
+          <td>2 人</td>
+          <td>6 人</td>
+          <td>82%</td>
+        </tr>
+        <tr>
+          <td><strong>ChatGPT</strong></td>
+          <td><span class="badge badge-purple">15 人</span></td>
+          <td><span class="badge badge-amber">2 人</span></td>
+          <td>11 人</td>
+          <td>5 人</td>
+          <td>85%</td>
+        </tr>
+        <tr>
+          <td><strong>Claude</strong></td>
+          <td><span class="badge badge-purple">9 人</span></td>
+          <td><span class="badge badge-amber">1 人</span></td>
+          <td>6 人</td>
+          <td>17 人</td>
+          <td>48%</td>
+        </tr>
+        <tr>
+          <td><strong>GitHub Copilot</strong></td>
+          <td><span class="badge badge-purple">5 人</span></td>
+          <td>—</td>
+          <td>5 人</td>
+          <td>23 人</td>
+          <td>30%</td>
+        </tr>
+        <tr>
+          <td><strong>Cursor</strong></td>
+          <td><span class="badge badge-purple">3 人</span></td>
+          <td>—</td>
+          <td>2 人</td>
+          <td>28 人</td>
+          <td>15%</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="insight">
+      <strong>觀察：</strong>ChatGPT 實際使用率最高（85%），其次是 Gemini（82%），且 Gemini 付費標準型人數達 25 人，顯示幾乎使用 Gemini 的人都選擇付費版。Cursor 使用率最低（15%），但使用者多為高付費意願群體。
+    </div>
+  </div>
+
+  <!-- Section 4 -->
+  <div class="section">
+    <div class="section-header">
+      <span class="section-number">04</span>
+      <span class="section-title">開發主要 AI 工具排名</span>
+    </div>
+    <p class="section-desc">問卷中請成員選出最常用於開發的 AI 工具第一名與第二名（第二名有 7 人未填）。</p>
+    <div class="chart-grid">
+      <div class="chart-card">
+        <h3>第一名票數（共 33 票）</h3>
+        <div class="chart-wrap" style="height:270px">
+          <canvas id="r1Chart" role="img" aria-label="開發主要AI工具第一名票數水平條形圖"></canvas>
+        </div>
+      </div>
+      <div class="chart-card">
+        <h3>第二名票數（共 26 票）</h3>
+        <div class="chart-wrap" style="height:270px">
+          <canvas id="r2Chart" role="img" aria-label="開發主要AI工具第二名票數水平條形圖"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <table class="summary-table" style="margin-top:16px">
+      <thead>
+        <tr>
+          <th>工具</th>
+          <th>第一名票數</th>
+          <th>第二名票數</th>
+          <th>總票數</th>
+          <th>綜合排名</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>ChatGPT</strong></td>
+          <td><span class="badge badge-purple">12 票</span></td>
+          <td>7 票</td>
+          <td><strong>19</strong></td>
+          <td><span class="badge badge-purple">🥇 第 1 名</span></td>
+        </tr>
+        <tr>
+          <td><strong>Gemini</strong></td>
+          <td>9 票</td>
+          <td><span class="badge badge-teal">11 票</span></td>
+          <td><strong>20</strong></td>
+          <td><span class="badge badge-teal">★ 總票最高</span></td>
+        </tr>
+        <tr>
+          <td><strong>Claude</strong></td>
+          <td>6 票</td>
+          <td>4 票</td>
+          <td><strong>10</strong></td>
+          <td>第 3 名</td>
+        </tr>
+        <tr>
+          <td><strong>GitHub Copilot</strong></td>
+          <td>3 票</td>
+          <td>2 票</td>
+          <td><strong>5</strong></td>
+          <td>第 4 名</td>
+        </tr>
+        <tr>
+          <td><strong>Cursor</strong></td>
+          <td>2 票</td>
+          <td>1 票</td>
+          <td><strong>3</strong></td>
+          <td>第 5 名</td>
+        </tr>
+        <tr>
+          <td><strong>Claude Code</strong></td>
+          <td>1 票</td>
+          <td>—</td>
+          <td><strong>1</strong></td>
+          <td>第 6 名</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="insight">
+      <strong>觀察：</strong>ChatGPT 以 12 票拿下第一名最多票，但 Gemini 第二名票數高達 11 票，總票數反而最高（20 票），顯示 Gemini 是最廣泛被視為「輔助工具」的首選。Claude 雖用戶較少，但有高度黏著的付費用戶群（王昭智使用高階方案 $160/月）。
+    </div>
+  </div>
+
+  <!-- Section 5: Management ROI -->
+  <div class="section">
+    <div class="section-header">
+      <span class="section-number">05</span>
+      <span class="section-title">管理者視角 — 補助效益試算與提案</span>
+    </div>
+    <p class="section-desc">現行補助 NT$500／人，提案調整至 NT$1,200／人。以下說明這筆預算為何比「新增一名資淺工程師」更具組織效益。</p>
+
+    <!-- Why junior engineers don't self-fund -->
+    <div class="chart-card full" style="margin-bottom:20px; padding:22px 24px;">
+      <h3 style="margin-bottom:14px; font-size:14px;">為什麼不能把這筆投資壓在員工個人意願上？</h3>
+      <div class="argument-block">
+        <p>對資歷淺、本薪偏低的工程師而言，用獎金購買 AI 工具並不是一個吸引人的個人投資決策。同樣一筆錢，拿去買台積電股票的短期帳面回報可能更直觀。這不是態度問題，而是完全合理的個人財務判斷。</p>
+        <p>問題在於：這個理性的個人選擇，正在製造組織層面的隱形成本。Token 用完就停工、遇到問題就詢問資深工程師——<strong>資歷淺的工程師，才是組織裡真正消耗最多溝通時間的族群</strong>。他們的每一個停頓，都在佔用資深工程師的注意力；他們每一個可預防的錯誤，都可能延伸成跨人員的修正、重工，甚至延宕整個上線時程。</p>
+        <p>對員工而言，來不及的代價是拿不到獎金。<strong>對公司而言，來不及的代價是延宕上線、牽連多個工程師、損失難以量化。</strong>員工整體素質的穩定與提升是公司利益，不能依賴個人自覺，必須由制度保障。</p>
+      </div>
+    </div>
+
+    <!-- Cost comparison -->
+    <p class="assumption-note">＊ 數據來源：RD 均薪 NT$50,000／月；資淺工程師進入後影響前後端＋QA 共 5 人，各損耗 20% 生產力</p>
+    <div class="compare-grid">
+      <!-- Option A -->
+      <div class="compare-card danger">
+        <div class="compare-label">方案 A</div>
+        <h4>新增一名資淺工程師<br>（不調整 AI 補助）</h4>
+        <div class="cost-row">
+          <span class="cost-name">資淺工程師月薪</span>
+          <span class="cost-val" style="color:#a32d2d">$45,000</span>
+        </div>
+        <div class="cost-row">
+          <span class="cost-name">拖慢 5 人（前後端＋QA）× 20%</span>
+          <span class="cost-val" style="color:#a32d2d">$50,000</span>
+        </div>
+        <div class="cost-row" style="font-size:11px; color:#888780; padding-bottom:4px;">
+          <span>$50,000 × 5 人 × 20% = $50,000</span>
+          <span></span>
+        </div>
+        <div class="cost-total">
+          <span>月實際成本</span>
+          <span class="total-val">$95,000</span>
+        </div>
+      </div>
+      <!-- VS -->
+      <div class="vs-divider">vs.</div>
+      <!-- Option B -->
+      <div class="compare-card success">
+        <div class="compare-label">方案 B（本提案）</div>
+        <h4>全員 AI 工具補助<br>提升至 NT$1,200／人</h4>
+        <div class="cost-row">
+          <span class="cost-name">現行補助（$500 × 30 人）</span>
+          <span class="cost-val" style="color:#0f6e56">$15,000</span>
+        </div>
+        <div class="cost-row">
+          <span class="cost-name">提升後補助（$1,200 × 30 人）</span>
+          <span class="cost-val" style="color:#0f6e56">$36,000</span>
+        </div>
+        <div class="cost-row">
+          <span class="cost-name">每月增加金額</span>
+          <span class="cost-val" style="color:#0f6e56">+$21,000</span>
+        </div>
+        <div class="cost-total">
+          <span>月實際增加成本</span>
+          <span class="total-val">$21,000</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Savings banner -->
+    <div class="savings-banner">
+      <div>
+        <div class="savings-text">方案 B 相較方案 A，每月可節省</div>
+        <div class="savings-sub">方案 A 總成本 $95,000 − 方案 B 全額補助 $36,000 = $59,000 淨節省</div>
+      </div>
+      <div style="text-align:right">
+        <div class="savings-num">$59,000／月</div>
+        <div class="savings-sub">等於每年節省約 NT$708,000</div>
+      </div>
+    </div>
+
+    <!-- Mini breakdown table -->
+    <table class="summary-table" style="margin-bottom:20px;">
+      <thead>
+        <tr>
+          <th>項目</th>
+          <th style="text-align:right">方案 A（新增人力）</th>
+          <th style="text-align:right">方案 B（AI 補助）</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>直接費用</td>
+          <td style="text-align:right">$45,000（薪資）</td>
+          <td style="text-align:right">$36,000（1,200 × 30 人）</td>
+        </tr>
+        <tr>
+          <td>隱性成本（生產力損失）</td>
+          <td style="text-align:right; color:#a32d2d">$50,000（5 人 × 20%）</td>
+          <td style="text-align:right; color:#0f6e56">$0</td>
+        </tr>
+        <tr>
+          <td>額外管理成本</td>
+          <td style="text-align:right; color:#a32d2d">有（onboarding、溝通）</td>
+          <td style="text-align:right; color:#0f6e56">無</td>
+        </tr>
+        <tr>
+          <td><strong>月總成本</strong></td>
+          <td style="text-align:right"><strong>$95,000</strong></td>
+          <td style="text-align:right"><strong style="color:#0f6e56">$36,000</strong></td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="insight" style="margin-bottom:20px;">
+      <strong>換個說法給管理層：</strong>一位資淺工程師的月薪 $45,000，已足以支付全體 30 人的 AI 工具補助（$36,000）且還剩 $9,000。選擇方案 B，不只省下 $59,000 的月成本，更省去 onboarding、溝通與錯誤修正的時間成本，讓現有 30 位工程師的底線同步提升。
+    </div>
+
+    <!-- Proposal: monthly sharing -->
+    <div class="proposal-box">
+      <h4>配套措施提案 <span class="proposal-tag">讓補助效益可被追蹤</span></h4>
+      <div class="proposal-item">
+        <div class="pi-num">1</div>
+        <div>
+          <div class="pi-title">每月各小組 AI 工具分享會</div>
+          <div class="pi-desc">由成員輪流分享當月實際使用心得與工作流程改善案例，形成內部知識庫，讓工具應用從個人優勢轉化為組織集體能力。</div>
+        </div>
+      </div>
+      <div class="proposal-item">
+        <div class="pi-num">2</div>
+        <div>
+          <div class="pi-title">每次分享留存書面紀錄</div>
+          <div class="pi-desc">整理成文件存檔，方便新進工程師快速上手，也讓管理層隨時可查閱各組的 AI 應用現況與成效。</div>
+        </div>
+      </div>
+      <div class="proposal-item">
+        <div class="pi-num">3</div>
+        <div>
+          <div class="pi-title">主管可不定期列席</div>
+          <div class="pi-desc">管理者保有彈性參與的空間，藉此直接了解工程師實際的工具應用深度，同時強化 AI 工具使用的組織文化。</div>
+        </div>
+      </div>
+      <div class="proposal-item" style="border-bottom:none;">
+        <div class="pi-num">4</div>
+        <div>
+          <div class="pi-title">季度效益回顧</div>
+          <div class="pi-desc">每季統計補助使用狀況、工具採用率變化，以及可量化的效率指標（如 PR review 時間、bug 回報率等），作為下一年度補助額度調整依據。</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="insight">
+      <strong>一句話總結：</strong>我們不是在要求公司補貼員工的個人工具費。我們是在要求公司為自己的開發品質與上線穩定性買單。這筆錢花在工具上，省下的是資深工程師的時間、是 bug 的修正成本、是延遲交付的風險，也是下一批資淺工程師成長所需的時間。
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <div class="report-footer">
+    <span>AI 工具使用情況調查 · 2026/05/27</span>
+    <span>共 33 筆回覆 · RD 28 人 / QA 5 人</span>
+  </div>
+
+</div><!-- /page -->
+
+<script>
+const rdNames = ['Taba','黃柏升','Zora','susan','Ann','楊鎮齊','米克','郭汶鑫','Wayne','陳世爵','郭家妤','蔡尚哲','Naomi','Allen','王昭智','周凱哲','黃子芸','許紋齊','Alvin','黃伯丞','黃崇哲','Kuko','張偉志','賴正鈞','潘宣佑','derrick','君穎','JT'];
+const rdS = [60,20,61,20,56,20,40,40,40,100,60,100,60,80,160,40,20.7,40,30,40,40,20,32,20,30,20,20,20];
+const rdSA = parseFloat((rdS.reduce((a,b)=>a+b,0)/rdS.length).toFixed(1));
+
+const qaN = ['張靜兒','曾詠婷','林晏如','洪文政','attlie'];
+const qaS = [20,20.7,20.7,50,40];
+const qaSA = parseFloat((qaS.reduce((a,b)=>a+b,0)/qaS.length).toFixed(1));
+
+const rdT = [3,1,4,2,3,4,2,3,2,1,4,2,3,4,2,2,4,3,1,2,1,4,4,1,4,1,2,2];
+const rdTA = parseFloat((rdT.reduce((a,b)=>a+b,0)/rdT.length).toFixed(1));
+const qaT = [2,4,2,3,4];
+const qaTA = parseFloat((qaT.reduce((a,b)=>a+b,0)/qaT.length).toFixed(1));
+
+const commonLineOpts = (labelText, yMax, stepSize) => ({
+  responsive: true,
+  maintainAspectRatio: false,
+  plugins: {
+    legend: { display: false },
+    tooltip: {
+      callbacks: {
+        label: ctx => ctx.datasetIndex === 0
+          ? (labelText === 'USD/月' ? `$${ctx.parsed.y}` : `${ctx.parsed.y} 個工具`)
+          : `平均 ${ctx.parsed.y}`
+      }
+    }
+  },
+  scales: {
+    x: {
+      ticks: { maxRotation: 90, font: { size: 9 }, autoSkip: false },
+      grid: { color: 'rgba(0,0,0,0.04)' }
+    },
+    y: {
+      beginAtZero: true,
+      ...(yMax ? { max: yMax, ticks: { stepSize } } : {}),
+      title: { display: true, text: labelText, font: { size: 10 }, color: '#888780' },
+      grid: { color: 'rgba(0,0,0,0.06)' }
+    }
+  }
+});
+
+const commonLineOptsFew = (labelText, yMax, stepSize) => ({
+  responsive: true,
+  maintainAspectRatio: false,
+  plugins: {
+    legend: { display: false },
+    tooltip: {
+      callbacks: {
+        label: ctx => ctx.datasetIndex === 0
+          ? (labelText === 'USD/月' ? `$${ctx.parsed.y}` : `${ctx.parsed.y} 個工具`)
+          : `平均 ${ctx.parsed.y}`
+      }
+    }
+  },
+  scales: {
+    x: {
+      ticks: { font: { size: 12 } },
+      grid: { color: 'rgba(0,0,0,0.04)' }
+    },
+    y: {
+      beginAtZero: true,
+      ...(yMax ? { max: yMax, ticks: { stepSize } } : {}),
+      title: { display: true, text: labelText, font: { size: 10 }, color: '#888780' },
+      grid: { color: 'rgba(0,0,0,0.06)' }
+    }
+  }
+});
+
+function makeLineChart(id, labels, data, avg, color, many, labelText, yMax, stepSize) {
+  new Chart(document.getElementById(id), {
+    type: 'line',
+    data: {
+      labels,
+      datasets: [
+        {
+          data,
+          borderColor: color,
+          backgroundColor: color + '18',
+          pointBackgroundColor: color,
+          pointRadius: many ? 3 : 5,
+          pointHoverRadius: 6,
+          tension: 0.28,
+          fill: true,
+          borderWidth: 2
+        },
+        {
+          data: Array(labels.length).fill(avg),
+          borderColor: '#BA7517',
+          borderDash: [5, 4],
+          pointRadius: 0,
+          borderWidth: 1.5,
+          fill: false
+        }
+      ]
+    },
+    options: many ? commonLineOpts(labelText, yMax, stepSize) : commonLineOptsFew(labelText, yMax, stepSize)
+  });
+}
+
+makeLineChart('rdSpend', rdNames, rdS, rdSA, '#534AB7', true, 'USD/月');
+makeLineChart('qaSpend', qaN, qaS, qaSA, '#1D9E75', false, 'USD/月');
+makeLineChart('rdTools', rdNames, rdT, rdTA, '#185FA5', true, '工具數', 5, 1);
+makeLineChart('qaTools', qaN, qaT, qaTA, '#3B6D11', false, '工具數', 5, 1);
+
+new Chart(document.getElementById('verChart'), {
+  type: 'bar',
+  data: {
+    labels: ['Gemini', 'ChatGPT', 'Claude', 'GitHub Copilot', 'Cursor'],
+    datasets: [
+      { label: '付費標準型', data: [25,15,9,5,3],   backgroundColor: '#534AB7', borderRadius: 3 },
+      { label: '付費高階型', data: [0, 2, 1, 0, 0],  backgroundColor: '#BA7517', borderRadius: 3 },
+      { label: '個人免費版', data: [2,11, 6, 5, 2],  backgroundColor: '#1D9E75', borderRadius: 3 },
+      { label: '無使用',     data: [6, 5,17,23,28], backgroundColor: '#B4B2A9', borderRadius: 3 }
+    ]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    plugins: {
+      legend: { display: false },
+      tooltip: { callbacks: { label: ctx => `${ctx.dataset.label}: ${ctx.parsed.y} 人` } }
+    },
+    scales: {
+      x: { ticks: { font: { size: 12 } }, grid: { display: false } },
+      y: { beginAtZero: true, max: 32, ticks: { stepSize: 4 },
+           title: { display: true, text: '人數', font: { size: 10 }, color: '#888780' },
+           grid: { color: 'rgba(0,0,0,0.06)' } }
+    }
+  }
+});
+
+const rankColors = ['#534AB7','#1D9E75','#185FA5','#BA7517','#D85A30','#888780'];
+
+new Chart(document.getElementById('r1Chart'), {
+  type: 'bar',
+  data: {
+    labels: ['ChatGPT','Gemini','Claude','GitHub Copilot','Cursor','Claude Code'],
+    datasets: [{ data: [12,9,6,3,2,1], backgroundColor: rankColors, borderRadius: 5 }]
+  },
+  options: {
+    indexAxis: 'y', responsive: true, maintainAspectRatio: false,
+    plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx => `${ctx.parsed.x} 票` } } },
+    scales: {
+      x: { beginAtZero: true, max: 14, ticks: { stepSize: 2 }, grid: { color: 'rgba(0,0,0,0.06)' } },
+      y: { ticks: { font: { size: 12 } }, grid: { display: false } }
+    }
+  }
+});
+
+new Chart(document.getElementById('r2Chart'), {
+  type: 'bar',
+  data: {
+    labels: ['Gemini','ChatGPT','Claude','GitHub Copilot','Cursor','VS Code AI'],
+    datasets: [{ data: [11,7,4,2,1,1], backgroundColor: ['#1D9E75','#534AB7','#185FA5','#BA7517','#D85A30','#888780'], borderRadius: 5 }]
+  },
+  options: {
+    indexAxis: 'y', responsive: true, maintainAspectRatio: false,
+    plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx => `${ctx.parsed.x} 票` } } },
+    scales: {
+      x: { beginAtZero: true, max: 14, ticks: { stepSize: 2 }, grid: { color: 'rgba(0,0,0,0.06)' } },
+      y: { ticks: { font: { size: 12 } }, grid: { display: false } }
+    }
+  }
+});
+</script>
+</body>
+</html>
