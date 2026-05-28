@@ -208,6 +208,67 @@
   .badge-amber  { background: #faeeda; color: #633806; }
   .badge-gray   { background: #f1efe8; color: #444441; }
 
+  /* Tier breakdown */
+  .tier-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    margin-top: 16px;
+  }
+  .tier-card {
+    border-radius: 12px;
+    padding: 16px;
+    border: 0.5px solid;
+  }
+  .tier-card.low  { background: #e1f5ee; border-color: #5dcaa5; }
+  .tier-card.mid  { background: #eeedfe; border-color: #afa9ec; }
+  .tier-card.high { background: #fcebeb; border-color: #f09595; }
+  .tier-label {
+    font-size: 10px;
+    font-weight: 500;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin-bottom: 4px;
+  }
+  .tier-card.low  .tier-label { color: #085041; }
+  .tier-card.mid  .tier-label { color: #3c3489; }
+  .tier-card.high .tier-label { color: #791f1f; }
+  .tier-range {
+    font-size: 18px;
+    font-weight: 500;
+    margin-bottom: 10px;
+  }
+  .tier-card.low  .tier-range { color: #0f6e56; }
+  .tier-card.mid  .tier-range { color: #534AB7; }
+  .tier-card.high .tier-range { color: #a32d2d; }
+  .tier-count {
+    font-size: 11px;
+    margin-bottom: 12px;
+    padding-bottom: 10px;
+    border-bottom: 0.5px solid rgba(0,0,0,0.08);
+  }
+  .tier-card.low  .tier-count { color: #1D9E75; }
+  .tier-card.mid  .tier-count { color: #7f77dd; }
+  .tier-card.high .tier-count { color: #e24b4a; }
+  .tier-names { display: flex; flex-wrap: wrap; gap: 5px; }
+  .name-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 12px;
+    padding: 3px 8px;
+    border-radius: 20px;
+    line-height: 1.3;
+  }
+  .tier-card.low  .name-chip { background: rgba(29,158,117,0.15); color: #085041; }
+  .tier-card.mid  .name-chip { background: rgba(83,74,183,0.12); color: #3c3489; }
+  .tier-card.high .name-chip { background: rgba(210,90,48,0.15); color: #791f1f; }
+  .name-chip .chip-amt { font-size: 10px; opacity: 0.7; }
+  .chip-role { font-size: 9px; padding: 1px 4px; border-radius: 3px; margin-left: 1px; }
+  .tier-card.low  .chip-role { background: rgba(29,158,117,0.25); color: #0f6e56; }
+  .tier-card.mid  .chip-role { background: rgba(83,74,183,0.2); color: #534AB7; }
+  .tier-card.high .chip-role { background: rgba(210,90,48,0.2); color: #a32d2d; }
+
   /* Cost comparison */
   .compare-grid {
     display: grid;
@@ -269,6 +330,57 @@
     font-weight: 500;
     color: #888780;
   }
+  /* Subsidy tier grid */
+  .subsidy-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+    margin-bottom: 16px;
+  }
+  .subsidy-card {
+    border-radius: 12px;
+    border: 0.5px solid;
+    padding: 18px 16px;
+  }
+  .subsidy-card.current { background: #f1efe8; border-color: #b4b2a9; }
+  .subsidy-card.tier1   { background: #eeedfe; border-color: #afa9ec; }
+  .subsidy-card.tier2   { background: #e1f5ee; border-color: #5dcaa5; }
+  .subsidy-card.tier3   { background: #e6f1fb; border-color: #85b7eb; }
+  .sub-badge {
+    display: inline-block;
+    font-size: 10px;
+    font-weight: 500;
+    padding: 2px 7px;
+    border-radius: 3px;
+    margin-bottom: 10px;
+  }
+  .subsidy-card.current .sub-badge { background: #d3d1c7; color: #444441; }
+  .subsidy-card.tier1   .sub-badge { background: #534AB7; color: #fff; }
+  .sub-amount {
+    font-size: 26px;
+    font-weight: 500;
+    line-height: 1.1;
+    margin-bottom: 2px;
+  }
+  .subsidy-card.current .sub-amount { color: #5f5e5a; }
+  .subsidy-card.tier1   .sub-amount { color: #3c3489; }
+  .subsidy-card.tier2   .sub-amount { color: #0f6e56; }
+  .subsidy-card.tier3   .sub-amount { color: #185FA5; }
+  .sub-label { font-size: 11px; color: #888780; margin-bottom: 12px; }
+  .sub-divider { height: 0.5px; background: rgba(0,0,0,0.1); margin-bottom: 10px; }
+  .sub-row {
+    display: flex;
+    justify-content: space-between;
+    font-size: 12px;
+    padding: 4px 0;
+    color: #5f5e5a;
+  }
+  .sub-row span:last-child { font-weight: 500; color: #2c2c2a; }
+  .sub-row.highlight span:last-child { color: #534AB7; }
+  .subsidy-card.tier2 .sub-row.highlight span:last-child { color: #0f6e56; }
+  .subsidy-card.tier3 .sub-row.highlight span:last-child { color: #185FA5; }
+  .sub-note { font-size: 10px; color: #888780; margin-top: 10px; line-height: 1.4; }
+
   .savings-banner {
     background: #eeedfe;
     border: 0.5px solid #afa9ec;
@@ -436,6 +548,62 @@
     </div>
     <div class="insight">
       <strong>觀察：</strong>RD 花費分布較廣（$20–$160），高花費者主要使用 Claude 高階方案或多工具組合。QA 人數較少，花費集中在 $20–$50，平均比 RD 低約 35%。
+    </div>
+
+    <!-- Tier breakdown -->
+    <div class="tier-grid">
+      <!-- Low tier -->
+      <div class="tier-card low">
+        <div class="tier-label">輕度使用</div>
+        <div class="tier-range">$0 – $28 / 月</div>
+        <div class="tier-count">共 9 人 · 佔 32%（RD）</div>
+        <div class="tier-names">
+          <span class="name-chip">黃柏升 <span class="chip-amt">$20</span></span>
+          <span class="name-chip">susan <span class="chip-amt">$20</span></span>
+          <span class="name-chip">楊鎮齊 <span class="chip-amt">$20</span></span>
+          <span class="name-chip">Kuko <span class="chip-amt">$20</span></span>
+          <span class="name-chip">賴正鈞 <span class="chip-amt">$20</span></span>
+          <span class="name-chip">derrick <span class="chip-amt">$20</span></span>
+          <span class="name-chip">君穎 <span class="chip-amt">$20</span></span>
+          <span class="name-chip">JT <span class="chip-amt">$20</span></span>
+          <span class="name-chip">黃子芸 <span class="chip-amt">$20.7</span></span>
+        </div>
+      </div>
+      <!-- Mid tier -->
+      <div class="tier-card mid">
+        <div class="tier-label">中度使用</div>
+        <div class="tier-range">$29 – $65 / 月</div>
+        <div class="tier-count">共 15 人 · 佔 54%（RD）</div>
+        <div class="tier-names">
+          <span class="name-chip">Alvin <span class="chip-amt">$30</span></span>
+          <span class="name-chip">潘宣佑 <span class="chip-amt">$30</span></span>
+          <span class="name-chip">張偉志 <span class="chip-amt">$32</span></span>
+          <span class="name-chip">米克 <span class="chip-amt">$40</span></span>
+          <span class="name-chip">郭汶鑫 <span class="chip-amt">$40</span></span>
+          <span class="name-chip">Wayne <span class="chip-amt">$40</span></span>
+          <span class="name-chip">周凱哲 <span class="chip-amt">$40</span></span>
+          <span class="name-chip">許紋齊 <span class="chip-amt">$40</span></span>
+          <span class="name-chip">黃伯丞 <span class="chip-amt">$40</span></span>
+          <span class="name-chip">黃崇哲 <span class="chip-amt">$40</span></span>
+          <span class="name-chip">Ann <span class="chip-amt">$56</span></span>
+          <span class="name-chip">Taba <span class="chip-amt">$60</span></span>
+          <span class="name-chip">郭家妤 <span class="chip-amt">$60</span></span>
+          <span class="name-chip">Naomi <span class="chip-amt">$60</span></span>
+          <span class="name-chip">Zora <span class="chip-amt">$61</span></span>
+        </div>
+      </div>
+      <!-- High tier -->
+      <div class="tier-card high">
+        <div class="tier-label">重度使用</div>
+        <div class="tier-range">$66+ / 月</div>
+        <div class="tier-count">共 4 人 · 佔 14%（RD）</div>
+        <div class="tier-names">
+          <span class="name-chip">Allen <span class="chip-amt">$80</span></span>
+          <span class="name-chip">陳世爵 <span class="chip-amt">$100</span></span>
+          <span class="name-chip">蔡尚哲 <span class="chip-amt">$100</span></span>
+          <span class="name-chip">王昭智 <span class="chip-amt">$160</span></span>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -660,133 +828,98 @@
       </div>
     </div>
 
-    <!-- Cost comparison -->
-    <p class="assumption-note">＊ 數據來源：RD 均薪 NT$50,000／月；資淺工程師進入後影響前後端＋QA 共 5 人，各損耗 20% 生產力</p>
-    <div class="compare-grid">
-      <!-- Option A -->
-      <div class="compare-card danger">
-        <div class="compare-label">方案 A</div>
-        <h4>新增一名資淺工程師<br>（不調整 AI 補助）</h4>
-        <div class="cost-row">
-          <span class="cost-name">資淺工程師月薪</span>
-          <span class="cost-val" style="color:#a32d2d">$45,000</span>
-        </div>
-        <div class="cost-row">
-          <span class="cost-name">拖慢 5 人（前後端＋QA）× 20%</span>
-          <span class="cost-val" style="color:#a32d2d">$50,000</span>
-        </div>
-        <div class="cost-row" style="font-size:11px; color:#888780; padding-bottom:4px;">
-          <span>$50,000 × 5 人 × 20% = $50,000</span>
-          <span></span>
-        </div>
-        <div class="cost-total">
-          <span>月實際成本</span>
-          <span class="total-val">$95,000</span>
-        </div>
+    <!-- Subsidy tier calculator -->
+    <p class="assumption-note">＊ 以 30 人為基準試算 · 現行補助 NT$500／人／月</p>
+    <div class="subsidy-grid">
+      <!-- $500 current -->
+      <div class="subsidy-card current">
+        <div class="sub-badge">現行</div>
+        <div class="sub-amount">$500</div>
+        <div class="sub-label">每人每月</div>
+        <div class="sub-divider"></div>
+        <div class="sub-row"><span>月總補助</span><span>$15,000</span></div>
+        <div class="sub-row"><span>年總補助</span><span>$180,000</span></div>
+        <div class="sub-row"><span>較現行增加</span><span>—</span></div>
+        <div class="sub-note">多數輕度使用者仍需自費補差額，易造成使用意願低落</div>
       </div>
-      <!-- VS -->
-      <div class="vs-divider">vs.</div>
-      <!-- Option B -->
-      <div class="compare-card success">
-        <div class="compare-label">方案 B（本提案）</div>
-        <h4>全員 AI 工具補助<br>提升至 NT$1,200／人</h4>
-        <div class="cost-row">
-          <span class="cost-name">現行補助（$500 × 30 人）</span>
-          <span class="cost-val" style="color:#0f6e56">$15,000</span>
-        </div>
-        <div class="cost-row">
-          <span class="cost-name">提升後補助（$1,200 × 30 人）</span>
-          <span class="cost-val" style="color:#0f6e56">$36,000</span>
-        </div>
-        <div class="cost-row">
-          <span class="cost-name">每月增加金額</span>
-          <span class="cost-val" style="color:#0f6e56">+$21,000</span>
-        </div>
-        <div class="cost-total">
-          <span>月實際增加成本</span>
-          <span class="total-val">$21,000</span>
-        </div>
+      <!-- $1,200 -->
+      <div class="subsidy-card tier1">
+        <div class="sub-badge">建議方案</div>
+        <div class="sub-amount">$1,200</div>
+        <div class="sub-label">每人每月</div>
+        <div class="sub-divider"></div>
+        <div class="sub-row"><span>月總補助</span><span>$36,000</span></div>
+        <div class="sub-row"><span>年總補助</span><span>$432,000</span></div>
+        <div class="sub-row highlight"><span>較現行增加</span><span>+$21,000/月</span></div>
+        <div class="sub-note">涵蓋中度使用者主流工具費用，低於一名資淺 RD 月薪</div>
+      </div>
+      <!-- $1,500 -->
+      <div class="subsidy-card tier2">
+        <div class="sub-amount">$1,500</div>
+        <div class="sub-label">每人每月</div>
+        <div class="sub-divider"></div>
+        <div class="sub-row"><span>月總補助</span><span>$45,000</span></div>
+        <div class="sub-row"><span>年總補助</span><span>$540,000</span></div>
+        <div class="sub-row highlight"><span>較現行增加</span><span>+$30,000/月</span></div>
+        <div class="sub-note">等同資淺 RD 月薪，可完整覆蓋中度用戶需求</div>
+      </div>
+      <!-- $2,000 -->
+      <div class="subsidy-card tier3">
+        <div class="sub-amount">$2,000</div>
+        <div class="sub-label">每人每月</div>
+        <div class="sub-divider"></div>
+        <div class="sub-row"><span>月總補助</span><span>$60,000</span></div>
+        <div class="sub-row"><span>年總補助</span><span>$720,000</span></div>
+        <div class="sub-row highlight"><span>較現行增加</span><span>+$45,000/月</span></div>
+        <div class="sub-note">支援高階方案與多工具重度使用者，強化核心開發戰力</div>
       </div>
     </div>
 
-    <!-- Savings banner -->
+    <!-- Context banner -->
     <div class="savings-banner">
       <div>
-        <div class="savings-text">方案 B 相較方案 A，每月可節省</div>
-        <div class="savings-sub">方案 A 總成本 $95,000 − 方案 B 全額補助 $36,000 = $59,000 淨節省</div>
+        <div class="savings-text">建議方案（$1,200）月總補助 $36,000，仍低於新增一名資淺 RD 的月薪（$45,000）</div>
+        <div class="savings-sub">補助 30 人全員，月成本仍比新增一名工程師的薪資低 $9,000</div>
       </div>
       <div style="text-align:right">
-        <div class="savings-num">$59,000／月</div>
-        <div class="savings-sub">等於每年節省約 NT$708,000</div>
+        <div class="savings-num">$59,000+</div>
+        <div class="savings-sub">建議方案每月潛在節省（vs 新增人力）</div>
       </div>
     </div>
 
-    <!-- Mini breakdown table -->
-    <table class="summary-table" style="margin-bottom:20px;">
-      <thead>
-        <tr>
-          <th>項目</th>
-          <th style="text-align:right">方案 A（新增人力）</th>
-          <th style="text-align:right">方案 B（AI 補助）</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td>直接費用</td>
-          <td style="text-align:right">$45,000（薪資）</td>
-          <td style="text-align:right">$36,000（1,200 × 30 人）</td>
-        </tr>
-        <tr>
-          <td>隱性成本（生產力損失）</td>
-          <td style="text-align:right; color:#a32d2d">$50,000（5 人 × 20%）</td>
-          <td style="text-align:right; color:#0f6e56">$0</td>
-        </tr>
-        <tr>
-          <td>額外管理成本</td>
-          <td style="text-align:right; color:#a32d2d">有（onboarding、溝通）</td>
-          <td style="text-align:right; color:#0f6e56">無</td>
-        </tr>
-        <tr>
-          <td><strong>月總成本</strong></td>
-          <td style="text-align:right"><strong>$95,000</strong></td>
-          <td style="text-align:right"><strong style="color:#0f6e56">$36,000</strong></td>
-        </tr>
-      </tbody>
-    </table>
-
     <div class="insight" style="margin-bottom:20px;">
-      <strong>換個說法給管理層：</strong>一位資淺工程師的月薪 $45,000，已足以支付全體 30 人的 AI 工具補助（$36,000）且還剩 $9,000。選擇方案 B，不只省下 $59,000 的月成本，更省去 onboarding、溝通與錯誤修正的時間成本，讓現有 30 位工程師的底線同步提升。
+      <strong>補助的真正意義：</strong>對原本捨不得花錢在 AI 工具上的工程師而言，補助不只是省錢——它是一個起點。有了公司買單，工程師才有機會跨出嘗試的第一步，從陌生到熟悉、從偶爾用到融入開發流程。這個習慣一旦養成，效率提升才是持久的，而不只是少數願意自費者的個人優勢。
     </div>
 
     <!-- Proposal: monthly sharing -->
     <div class="proposal-box">
-      <h4>配套措施提案 <span class="proposal-tag">讓補助效益可被追蹤</span></h4>
+      <h4>配套措施提案 <span class="proposal-tag">讓補助效益可被驗證</span></h4>
       <div class="proposal-item">
         <div class="pi-num">1</div>
         <div>
-          <div class="pi-title">每月各小組 AI 工具分享會</div>
-          <div class="pi-desc">由成員輪流分享當月實際使用心得與工作流程改善案例，形成內部知識庫，讓工具應用從個人優勢轉化為組織集體能力。</div>
+          <div class="pi-title">先試行一季，觀察達成率</div>
+          <div class="pi-desc">以第一季為試驗期，追蹤工具採用率、使用頻率與自評效率變化，季末提交簡易成效報告。降低公司承諾風險，也讓數據說話。</div>
         </div>
       </div>
       <div class="proposal-item">
         <div class="pi-num">2</div>
         <div>
-          <div class="pi-title">每次分享留存書面紀錄</div>
-          <div class="pi-desc">整理成文件存檔，方便新進工程師快速上手，也讓管理層隨時可查閱各組的 AI 應用現況與成效。</div>
+          <div class="pi-title">開設小組 AI 工作坊（每月一次）</div>
+          <div class="pi-desc">由各組輪流主辦，聚焦實際開發場景：prompt 技巧、工具串接、code review 加速等。讓補助不只是發錢，而是帶動組織內部的 AI 能力升級。</div>
         </div>
       </div>
       <div class="proposal-item">
         <div class="pi-num">3</div>
         <div>
-          <div class="pi-title">主管可不定期列席</div>
-          <div class="pi-desc">管理者保有彈性參與的空間，藉此直接了解工程師實際的工具應用深度，同時強化 AI 工具使用的組織文化。</div>
+          <div class="pi-title">工作坊成果留存書面紀錄</div>
+          <div class="pi-desc">每次工作坊整理成文件存檔，形成內部知識庫，新進工程師可快速上手，管理層也可隨時查閱各組的 AI 應用現況。</div>
         </div>
       </div>
       <div class="proposal-item" style="border-bottom:none;">
         <div class="pi-num">4</div>
         <div>
-          <div class="pi-title">季度效益回顧</div>
-          <div class="pi-desc">每季統計補助使用狀況、工具採用率變化，以及可量化的效率指標（如 PR review 時間、bug 回報率等），作為下一年度補助額度調整依據。</div>
+          <div class="pi-title">主管可不定期列席</div>
+          <div class="pi-desc">管理者保有彈性參與空間，直接觀察工程師的工具應用深度與討論品質，作為後續補助額度調整的參考依據。</div>
         </div>
       </div>
     </div>
