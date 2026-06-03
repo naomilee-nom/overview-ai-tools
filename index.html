@@ -4,6 +4,35 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>AI 工具使用情況分析報告 — 2026/05/27</title>
+  <!-- Tab nav styles -->
+  <style>
+    .tab-nav {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: #f5f4f0;
+      border-bottom: 1px solid #d3d1c7;
+      display: flex;
+      gap: 0;
+      padding: 0 calc((100% - 960px) / 2);
+    }
+    .tab-btn {
+      padding: 14px 24px;
+      font-size: 13px;
+      font-weight: 500;
+      color: #888780;
+      background: none;
+      border: none;
+      border-bottom: 2px solid transparent;
+      cursor: pointer;
+      font-family: inherit;
+      transition: color 0.15s, border-color 0.15s;
+    }
+    .tab-btn:hover { color: #2c2c2a; }
+    .tab-btn.active { color: #534AB7; border-bottom-color: #534AB7; }
+    .tab-panel { display: none; }
+    .tab-panel.active { display: block; }
+  </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -482,6 +511,15 @@
 </style>
 </head>
 <body>
+
+<!-- Tab navigation -->
+<nav class="tab-nav">
+  <button class="tab-btn active" onclick="switchTab('report')">📊 內部調查報告</button>
+  <button class="tab-btn" onclick="switchTab('friends')">👥 朋友公司比較</button>
+</nav>
+
+<!-- Tab: Report -->
+<div id="tab-report" class="tab-panel active">
 <div class="page">
 
   <!-- Header -->
@@ -936,6 +974,148 @@
   </div>
 
 </div><!-- /page -->
+</div><!-- /tab-report -->
+
+<!-- Tab: Friends comparison -->
+<div id="tab-friends" class="tab-panel">
+<div class="page">
+
+  <div class="report-header">
+    <div class="tag">Friend Survey &nbsp;·&nbsp; 2026 / 06 / 03</div>
+    <h1>朋友公司 AI 工具使用比較</h1>
+    <div class="subtitle">來自不同公司的工程師分享 · 公司補助狀況、使用工具與費用整理</div>
+  </div>
+
+  <!-- Sort buttons -->
+  <div style="display:flex; gap:8px; margin-bottom:14px; flex-wrap:wrap; align-items:center;">
+    <span style="font-size:12px; color:#888780; margin-right:4px;">排序：</span>
+    <button class="sort-btn active" onclick="sortFriends('salary')" id="sort-salary">年薪 ↕</button>
+    <button class="sort-btn" onclick="sortFriends('size')"   id="sort-size">編制 ↕</button>
+    <button class="sort-btn" onclick="sortFriends('city')"   id="sort-city">地點 ↕</button>
+    <button class="sort-btn" onclick="sortFriends('price')"  id="sort-price">價格／月 ↕</button>
+  </div>
+
+  <style>
+    .sort-btn {
+      padding: 5px 14px;
+      font-size: 12px;
+      font-weight: 500;
+      border: 0.5px solid #d3d1c7;
+      border-radius: 6px;
+      background: #fff;
+      color: #5f5e5a;
+      cursor: pointer;
+      font-family: inherit;
+      transition: all 0.15s;
+    }
+    .sort-btn:hover { border-color: #534AB7; color: #534AB7; }
+    .sort-btn.active { background: #534AB7; border-color: #534AB7; color: #fff; }
+    #friends-table tbody tr { transition: background 0.1s; }
+  </style>
+
+  <table class="summary-table" id="friends-table">
+    <thead>
+      <tr>
+        <th>代號</th>
+        <th>公司／編制</th>
+        <th>地點</th>
+        <th>職位／經驗</th>
+        <th>年薪（萬）</th>
+        <th>公司補助狀況</th>
+        <th>使用 AI 工具／方案</th>
+        <th>價格／人／月（USD）</th>
+      </tr>
+    </thead>
+    <tbody id="friends-tbody"></tbody>
+  </table>
+
+  <script>
+    const friendsData = [
+      { name:'10',       company:'不明／50人',     companySize:50,  city:'台北', role:'後端／4年', salary:150, subsidy:'公司補助',           subsidyClass:'badge-teal',   tools:'Gemini Work Pro（內建）、GitHub Copilot（已停）、Claude Team Premium', price:30 },
+      { name:'王月🐥🐥', company:'新創／不明',      companySize:0,   city:'台北', role:'前端／2年', salary:80,  subsidy:'公司全額付費',        subsidyClass:'badge-teal',   tools:'Claude Team Premium', price:30 },
+      { name:'Gary',     company:'鉅亨／50人',      companySize:50,  city:'台北', role:'前端／3年', salary:100, subsidy:'說要補助，仍自費',     subsidyClass:'badge-gray',   tools:'GitHub Copilot Pro（已停）、Gemini Pro、GPT Plus、Claude Pro', price:60 },
+      { name:'Tim 峻廷', company:'不明／20人',      companySize:20,  city:'高雄', role:'前端／4年', salary:85,  subsidy:'公司部分補助（分攤）', subsidyClass:'badge-purple', tools:'Claude Max 100U（4人共用）', price:25 },
+      { name:'Aya',      company:'momo／不明',      companySize:0,   city:'台北', role:'前端／4年', salary:120, subsidy:'公司全額付費（團隊方案）',subsidyClass:'badge-teal', tools:'Claude + ChatGPT + Gemini 全團隊方案', price:80 },
+      { name:'Roy',      company:'KKBOX／不明',     companySize:0,   city:'台北', role:'iOS／6年',  salary:130, subsidy:'公司補助（Azure LLM）', subsidyClass:'badge-teal',  tools:'Azure LLM token $800 USD/月', price:800 },
+      { name:'VV',       company:'緯創資通／不明',  companySize:0,   city:'台北', role:'前端／3年', salary:85,  subsidy:'公司補助（資安限制）', subsidyClass:'badge-purple', tools:'GitHub Copilot Enterprise', price:39 },
+    ];
+
+    const cityOrder = { '台北':0, '高雄':1, '不明':2 };
+    let currentSort = 'salary';
+    let sortDir = { salary:1, size:1, city:1, price:1 };
+
+    function priceLabel(p) {
+      if (p === 0)   return '$0';
+      if (p === 800) return '$800（個人 token 扣打）';
+      if (p === 60)  return '~$60（自費）';
+      if (p === 80)  return '~$80+（三方案合計）';
+      if (p === 25)  return '$25（分攤）';
+      return '$' + p;
+    }
+
+    function renderTable(data) {
+      const tbody = document.getElementById('friends-tbody');
+      tbody.innerHTML = data.map(d => `
+        <tr>
+          <td><strong>${d.name}</strong></td>
+          <td>${d.company}</td>
+          <td>${d.city}</td>
+          <td>${d.role}</td>
+          <td>${d.salary ? `<span class="badge ${d.salary>=120?'badge-amber':'badge-gray'}">${d.salary}</span>` : '—'}</td>
+          <td><span class="badge ${d.subsidyClass}">${d.subsidy}</span></td>
+          <td>${d.tools}</td>
+          <td>${priceLabel(d.price)}</td>
+        </tr>`).join('');
+    }
+
+    function sortFriends(key) {
+      if (currentSort === key) sortDir[key] *= -1;
+      else sortDir[key] = 1;
+      currentSort = key;
+
+      document.querySelectorAll('.sort-btn').forEach(b => b.classList.remove('active'));
+      document.getElementById('sort-' + key).classList.add('active');
+
+      const sorted = [...friendsData].sort((a, b) => {
+        let av, bv;
+        if (key === 'salary') { av = a.salary; bv = b.salary; }
+        else if (key === 'size')  { av = a.companySize; bv = b.companySize; }
+        else if (key === 'city')  { av = cityOrder[a.city] ?? 2; bv = cityOrder[b.city] ?? 2; }
+        else if (key === 'price') { av = a.price; bv = b.price; }
+        return (av - bv) * sortDir[key];
+      });
+      renderTable(sorted);
+
+      const btn = document.getElementById('sort-' + key);
+      const arrow = sortDir[key] === 1 ? '↑' : '↓';
+      btn.textContent = btn.textContent.replace(/[↕↑↓]/, arrow);
+    }
+
+    // initial render sorted by salary desc
+    sortDir.salary = -1;
+    sortFriends('salary');
+  </script>
+
+  <div class="insight" style="margin-top:24px;">
+    <strong>觀察：</strong>多數台北公司已有全額或部分補助，高雄相對較少。momo（Aya）是補助力度最大的，三套 Team 方案全買。Roy 的 Azure LLM 個人 token 扣打 $800 USD 遠高於其他人，屬於企業級用量。VV 因資安政策只能使用 Copilot Enterprise，選擇空間受限。Gary 雖在鉅亨（50人規模），公司遲遲未兌現補助承諾，目前全數自費約 $60/月。
+  </div>
+
+  <div class="report-footer" style="margin-top:40px;">
+    <span>朋友公司 AI 工具調查 · 2026/06/03</span>
+    <span>共 6 筆資料 · 台北 5 人 / 高雄 1 人</span>
+  </div>
+
+</div><!-- /page -->
+</div><!-- /tab-friends -->
+
+<script>
+function switchTab(name) {
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('tab-' + name).classList.add('active');
+  event.target.classList.add('active');
+}
+</script>
 
 <script>
 const rdNames = ['Taba','黃柏升','Zora','susan','Ann','楊鎮齊','米克','郭汶鑫','Wayne','陳世爵','郭家妤','蔡尚哲','Naomi','Allen','王昭智','周凱哲','黃子芸','許紋齊','Alvin','黃伯丞','黃崇哲','Kuko','張偉志','賴正鈞','潘宣佑','derrick','君穎','JT'];
